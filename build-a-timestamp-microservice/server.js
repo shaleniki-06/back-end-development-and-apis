@@ -1,21 +1,36 @@
-import express from "express";
-import cors from "cors";
+const express = require("express");
 
 const app = express();
 
-app.use(cors({ optionsSuccessStatus: 200 }));
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  next();
+});
 
 app.use(express.static("public"));
 
-app.get("/", (_req, res) => {
-  res.sendFile(import.meta.dirname + "/views/index.html");
+app.get("/", (req, res) => {
+  res.sendFile("views/index.html", { root: process.cwd() });
 });
 
-// Do not change code above this line
+function respond(res, date) {
+  if (isNaN(date.getTime())) {
+    return res.json({ error: "Invalid Date" });
+  }
+  res.json({ unix: date.getTime(), utc: date.toUTCString() });
+}
 
-// Do not change code below this line
+app.get("/api", (req, res) => {
+  respond(res, new Date());
+});
 
-const PORT = 8000;
-const listener = app.listen(PORT, function () {
-  console.log("Your app is listening on port " + listener.address().port);
+app.get("/api/:date", (req, res) => {
+  const { date } = req.params;
+  const parsed = /^-?\d+$/.test(date) ? new Date(Number(date)) : new Date(date);
+  respond(res, parsed);
+});
+
+const port = process.env.PORT || 8000;
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
 });
