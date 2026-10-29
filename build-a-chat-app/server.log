@@ -1,0 +1,6 @@
+nohup: ignoring input
+
+> build-a-chat-app@0.0.1 start
+> node server.js
+
+Chat server running at http://localhost:3001
